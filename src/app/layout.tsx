@@ -16,7 +16,7 @@ const geistMono = Geist_Mono({
 });
 
 export const metadata: Metadata = {
-  title: "Scrum Poker App",
+  title: "Scrum Poker App with Jira Integration",
   description: "A collaborative planning poker tool for agile teams",
 };
 
