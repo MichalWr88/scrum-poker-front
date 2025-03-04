@@ -1,161 +1,92 @@
 "use client";
 import { useState, useEffect } from "react";
-import { io, Socket } from "socket.io-client";
 import { useParams } from "next/navigation";
-
-// Socket events enum
-enum SocketEvents {
-  // Connection events
-  CONNECT = "connection",
-  DISCONNECT = "disconnect",
-
-  // Room events
-  JOIN_ROOM = "join_room",
-  LEAVE_ROOM = "leave_room",
-  ROOM_USERS_UPDATED = "room_users_updated",
-
-  // Voting events
-  SEND_VOTE = "send_vote",
-  VOTES_UPDATED = "votes_updated",
-  CLEAR_ALL_VOTES = "clear_all_votes",
-  CLEAR_MY_VOTE = "clear_my_vote",
-  VOTES_CLEARED = "votes_cleared",
-}
-
-interface Vote {
-  userId: string;
-  userName: string;
-  value: string | number | null;
-}
+import { socketService, Vote } from "../services/socket/socket-service";
 
 export function ScrumPokerRoom() {
   const [participants, setParticipants] = useState<Vote[]>([]);
   const [revealed, setRevealed] = useState(false);
   const [currentVote, setCurrentVote] = useState<string | number | null>(null);
-  const [socket, setSocket] = useState<Socket | null>(null);
-  const [userName, setUsername] = useState(
-    `User-${(Math.random() * 1000).toFixed(0)}`
-  );
+  const [username] = useState(`User-${(Math.random() * 1000).toFixed(0)}`);
   const params = useParams();
   const roomId = params?.id as string;
-
-  // Connect to socket when component mounts
+  console.log("render22");
+  // Set up socket connection and event listeners
   useEffect(() => {
-    // Create socket connection
-    const newSocket = io(
-      process.env.NEXT_PUBLIC_SOCKET_URL || "http://localhost:3001",
-      {
-        transports: ["websocket"],
-        autoConnect: true,
-      }
-    );
+    console.log("render");
+    // Initialize socket connection
+    socketService.init(username, roomId);
 
-    // Set up event handlers
-    newSocket.on("connect", () => {
-      console.log("Connected to socket server");
-
-      // Join the room
-      newSocket.emit(SocketEvents.JOIN_ROOM, {
-        roomId,
-        userName,
-      });
+    // Set up listeners
+    socketService.onRoomUsersUpdated((updatedParticipants) => {
+      setParticipants(updatedParticipants);
     });
 
-    // Listen for updated participants list
-    newSocket.on(
-      SocketEvents.ROOM_USERS_UPDATED,
-      (updatedParticipants: Vote[]) => {
-        setParticipants(updatedParticipants);
-      }
-    );
-
-    // Listen for vote updates
-    newSocket.on(SocketEvents.VOTES_UPDATED, (updatedParticipants: Vote[]) => {
+    socketService.onVotesUpdated((updatedParticipants) => {
       setParticipants(updatedParticipants);
 
       // Update current user's vote if changed from server
-      const myVote = updatedParticipants.find((p) => p.userId === newSocket.id);
-      if (myVote) {
-        setCurrentVote(myVote.value);
+      const socket = socketService.getSocket();
+      if (socket) {
+        const myVote = updatedParticipants.find((p) => p.userId === socket.id);
+        if (myVote) {
+          setCurrentVote(myVote.value);
+        }
       }
     });
 
-    // Listen for vote clears
-    newSocket.on(
-      SocketEvents.VOTES_CLEARED,
-      (clearType: "all" | "single", userId?: string) => {
-        if (clearType === "all") {
-          setCurrentVote(null);
-        } else if (clearType === "single" && userId === newSocket.id) {
-          setCurrentVote(null);
-        }
+    socketService.onVotesCleared((clearType, userId) => {
+      const socket = socketService.getSocket();
+      if (clearType === "all") {
+        setCurrentVote(null);
+      } else if (clearType === "single" && socket && userId === socket.id) {
+        setCurrentVote(null);
       }
-    );
+    });
 
-    // Store socket in state
-    setSocket(newSocket);
-
-    // Clean up function
+    // Clean up on unmount
     return () => {
-      if (newSocket) {
-        newSocket.emit(SocketEvents.LEAVE_ROOM, { roomId });
-        newSocket.disconnect();
-      }
+      socketService.disconnect();
+      socketService.removeAllListeners();
     };
-  }, [roomId, userName]);
+  }, [roomId, username]);
 
   // Function to handle when a user casts a vote
   const handleVote = (vote: string) => {
+    console.log(vote);
     setCurrentVote(vote);
-
-    // Send vote to the server
-    if (socket) {
-      socket.emit(SocketEvents.SEND_VOTE, {
-        roomId,
-        vote,
-      });
-    }
+    socketService.sendVote(vote);
   };
 
   // Toggle vote visibility
   const toggleVotes = () => {
     setRevealed(!revealed);
-    // In a real implementation, you would emit an event to toggle votes
-    // if (socket) {
-    //   socket.emit("toggle-votes", {
-    //     roomId,
-    //     revealed: !revealed,
-    //   });
-    // }
+    socketService.toggleVotes();
   };
 
   // Clear all votes
   const clearAllVotes = () => {
-    if (socket) {
-      socket.emit(SocketEvents.CLEAR_ALL_VOTES, { roomId });
-    }
+    socketService.clearAllVotes();
   };
 
   // Clear my vote only
   const clearMyVote = () => {
-    if (socket) {
-      socket.emit(SocketEvents.CLEAR_MY_VOTE, { roomId });
-      setCurrentVote(null);
-    }
+    socketService.clearMyVote();
+    setCurrentVote(null);
+  };
+
+  // Check if current user is participant with this ID
+  const isCurrentUser = (userId: string) => {
+    const socket = socketService.getSocket();
+    return socket?.id === userId;
   };
 
   return (
     <div className="flex h-screen">
       {/* Left side (70%): Voting area and participants */}
       <div className="w-[70%] p-6 flex flex-col gap-6">
-
-
         {/* Voting controls and action buttons */}
         <div className="flex justify-between items-center">
-          <h2 className="text-xl text-blue-900">
-            Your Vote:{" "}
-            <span className="font-bold">{currentVote ?? "Not voted"}</span>
-          </h2>
           <div className="space-x-3">
             <button
               onClick={clearMyVote}
@@ -203,7 +134,7 @@ export function ScrumPokerRoom() {
                 onClick={() => handleVote(value)}
                 className={`py-3 px-4 text-center rounded-md font-bold transition-colors ${
                   currentVote === value
-                    ? "bg-cyan-600 text-white"
+                    ? "bg-orange-500 text-white"
                     : "bg-white text-blue-900 border border-sky-200 hover:bg-sky-200"
                 }`}
               >
@@ -212,35 +143,68 @@ export function ScrumPokerRoom() {
             ))}
           </div>
         </div>
+        <div className="flex flex-row gap-6">
+          {/* Participant list with votes */}
+          <div className="bg-white rounded-lg shadow p-6 flex-3/4">
+            <div className="flex items-center gap-3 mb-4">
+              <h2 className="text-xl font-semibold text-blue-900">
+                Participants ({participants.length})
+              </h2>
+            </div>
 
-        {/* Participant list with votes */}
-        <div className="bg-white rounded-lg shadow p-6">
-          <div className="flex items-center gap-3 mb-4">
-            <h2 className="text-xl font-semibold text-blue-900">
-              Participants ({participants.length})
-            </h2>
+            <ul className="space-y-3">
+              {participants.map((participant) => (
+                <li
+                  key={participant.userId}
+                  className="flex items-center justify-between p-3 bg-sky-50 rounded-lg"
+                >
+                  <span className="text-blue-900">
+                    {participant.userName}{" "}
+                    {isCurrentUser(participant.userId) ? "(You)" : ""}
+                  </span>
+                  <span className="font-mono font-bold text-cyan-600">
+                    {participant.value
+                      ? revealed
+                        ? participant.value
+                        : "✓"
+                      : "..."}
+                  </span>
+                </li>
+              ))}
+            </ul>
           </div>
-
-          <ul className="space-y-3">
-            {participants.map((participant) => (
-              <li
-                key={participant.userId}
-                className="flex items-center justify-between p-3 bg-sky-50 rounded-lg"
-              >
-                <span className="text-blue-900">
-                  {participant.userName}{" "}
-                  {participant.userId === socket?.id ? "(You)" : ""}
-                </span>
-                <span className="font-mono font-bold text-cyan-600">
-                  {participant.value
-                    ? revealed
-                      ? participant.value
-                      : "✓"
-                    : "..."}
-                </span>
-              </li>
-            ))}
-          </ul>
+          {/* Statistics */}
+          <div className="bg-white rounded-lg shadow p-6">
+            <h2 className="text-xl font-semibold text-blue-900 mb-4">
+              Statistics
+            </h2>
+            <div className="flex flex-col gap-4">
+              <div>
+                <p className="text-sm text-sky-600">Average</p>
+                <p className="font-medium text-blue-900">
+                  {participants
+                    .filter((p) => !!p.value)
+                    .reduce(
+                      (sum, p) => sum + ((p.value && parseFloat(p.value.toString())) || 0),
+                      0
+                    ) / participants.length}
+                </p>
+              </div>
+              <div>
+                <p className="text-sm text-sky-600">Median</p>
+                <p className="font-medium text-blue-900">
+                  {
+                    participants
+                      .filter((p) => !!p.value)
+                      .map((p) => p.value !== null ? parseFloat(p.value.toString()) : 0)
+                      .sort((a, b) => a - b)[
+                      Math.floor(participants.length / 2)
+                    ]
+                  }
+                </p>
+              </div>
+            </div>
+          </div>
         </div>
       </div>
 
