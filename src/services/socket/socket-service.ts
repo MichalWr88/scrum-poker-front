@@ -16,6 +16,7 @@ export enum SocketEvents {
   CLEAR_ALL_VOTES = "clear_all_votes",
   CLEAR_MY_VOTE = "clear_my_vote",
   VOTES_CLEARED = "votes_cleared",
+  TOGGLE_VOTES = "toggle_votes",
 }
 
 export interface Vote {
@@ -64,7 +65,7 @@ export class SocketService {
       console.log("Socket disconnected");
     });
 
-    this.socket.on("error", (error: any) => {
+    this.socket.on("error", (error: unknown) => {
       console.error("Socket error:", error);
     });
 
@@ -102,7 +103,7 @@ export class SocketService {
 
     this.socket.emit(SocketEvents.JOIN_ROOM, {
       roomId: this.roomId,
-      username: this.username,
+      userName: this.username,
     });
   }
 
@@ -136,7 +137,19 @@ export class SocketService {
       vote,
     });
   }
+  /**
+   * Toggle votes visibility in the room
+   */
+  public toggleVotes(): void {
+    if (!this.socket || !this.roomId) {
+      console.error(
+        "Cannot toggle votes: Socket not initialized or missing roomId"
+      );
+      return;
+    }
 
+    this.socket.emit(SocketEvents.TOGGLE_VOTES, { roomId: this.roomId });
+  }
   /**
    * Clear all votes in the room
    */
