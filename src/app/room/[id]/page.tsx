@@ -18,7 +18,6 @@ export default async function RoomPage(props: PageProps) {
       >
         <JiraTask />
       </RoomWrapper>
-
     </div>
   );
 }
