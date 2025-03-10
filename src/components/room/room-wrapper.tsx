@@ -20,7 +20,7 @@ const RoomWrapper = ({
       </div>
 
       {/* Right side (30%): Jira task details */}
-      <div className="w-3/6 bg-sky-50 p-6 border-l border-sky-200">
+      <div className="w-3/6 bg-sky-50 p-6 border-l border-sky-200 overflow-auto">
         {children}
       </div>
     </div>
