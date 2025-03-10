@@ -16,7 +16,7 @@ export default async function RoomPage(props: PageProps) {
         actionComponent={<ActionButtons />}
         votingComponent={<VotingArea />}
       >
-        <JiraTask />
+        <JiraTask initialKey="AAA-2063" />
       </RoomWrapper>
     </div>
   );
