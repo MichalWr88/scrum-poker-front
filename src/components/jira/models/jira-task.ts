@@ -115,7 +115,7 @@ export interface Epic {
   self: string;
   name: string;
   summary: string;
-  fixVersions: any[];
+  fixVersions: unknown[];
   color: Color;
   done: boolean;
 }
