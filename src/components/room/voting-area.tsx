@@ -89,12 +89,12 @@ const VotingArea = () => {
         <h3 className="text-lg font-semibold text-blue-900 mb-4">
           Select Your Estimate
         </h3>
-        <div className="grid grid-cols-8 gap-2">
+        <div className="flex flex-wrap gap-2 justify-around">
           {fibonacciVotes.map((value) => (
             <button
               key={value}
               onClick={() => handleVote(value)}
-              className={`py-3 px-4 text-center rounded-md font-bold transition-colors ${
+              className={`w-[60] py-2 text-center rounded-md font-bold transition-colors ${
                 currentVote === value
                   ? "bg-orange-500 text-white"
                   : "bg-white text-blue-900 border border-sky-200 hover:bg-sky-200"
