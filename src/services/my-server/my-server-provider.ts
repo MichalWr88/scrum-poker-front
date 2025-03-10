@@ -1,3 +1,5 @@
+import { Task } from "@/components/jira/models/jira-task";
+
 const url = process.env.MY_SERVER_URL || "http://localhost:3000";
 
 type Token = string | null;
@@ -37,22 +39,31 @@ class MyServerProvider {
     this.token = responseJson.accessToken;
     return this.token;
   }
-  public async getTaskById(id: string): Promise<unknown> {
+  public async getTaskById(id: string): Promise<Task> {
     try {
-      const response = await fetch(`${url}/api/task/${id}`, {
-        method: "GET",
-        headers: fetchHeaders,
-      });
-      if (!response.ok) {
-        throw new Error(
-          `Error fetching task with id ${id}: ${response.statusText}`
-        );
+      if (!this.token) {
+        this.token = await this.getToken();
       }
+      this.updateHeadersToken();
+      const response = await fetch(`${url}/api/jira/task/${id}`, {
+        method: "POST",
+        body: JSON.stringify({ fields: "" }),
+
+        headers: { ...fetchHeaders, Authorization: `Bearer ${this.token}`,"Content-Type": "application/json" },
+      });
+      // if (!response.ok) {
+      //   throw new Error(
+      //     `Error fetching task with id ${id}: ${JSON.stringify(response.text())}`
+      //   );
+      // }
       return await response.json();
     } catch (error) {
       console.error(error);
       throw error;
     }
+  }
+  private updateHeadersToken() {
+    fetchHeaders.append("Authorization", `Bearer ${this.token}`);
   }
 }
 
