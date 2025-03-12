@@ -1,3 +1,4 @@
+import { Task } from "@/components/jira/models/jira-task";
 import { io, Socket } from "socket.io-client";
 
 export enum SocketEvents {
@@ -17,6 +18,11 @@ export enum SocketEvents {
   CLEAR_MY_VOTE = "clear_my_vote",
   VOTES_CLEARED = "votes_cleared",
   TOGGLE_VOTES = "toggle_votes",
+
+  //TASK EVENTS
+  IS_PENDING_NEW_TASK = "is_pending_new_task",
+  FETCHED_NEW_TASK = "fetched_new_task",
+  PENDING_NEW_TASK = "pending_new_task",
 }
 
 export interface Vote {
@@ -48,7 +54,7 @@ export class SocketService {
     this.roomId = roomId;
 
     this.socket = io(
-      process.env.NEXT_PUBLIC_SOCKET_URL || "http://localhost:3001",
+      process.env.NEXT_PUBLIC_SOCKET_URL || "http://localhost:3002",
       {
         transports: ["websocket"],
         autoConnect: true,
@@ -89,7 +95,53 @@ export class SocketService {
       this.socket = null;
     }
   }
+  /**
+   * Emit an event indicating a new task is pending
+   */
+  public emitPendingNewTask(): void {
+    if (!this.socket || !this.roomId) {
+      console.error(
+        "Cannot emit pending new task: Socket not initialized or missing roomId"
+      );
+      return;
+    }
 
+    this.socket.emit(SocketEvents.PENDING_NEW_TASK, { roomId: this.roomId });
+  }
+  public onIsPendingNewTask(callback: (task: Task) => void): void {
+    if (!this.socket || !this.roomId) {
+      console.error(
+        "Cannot emit pending new task: Socket not initialized or missing roomId"
+      );
+      return;
+    }
+    this.socket.on(SocketEvents.IS_PENDING_NEW_TASK, callback);
+  }
+  /**
+   * Emit an event indicating a new task has been fetched
+   */
+  public emitFetchedNewTask(task: Task): void {
+    if (!this.socket || !this.roomId) {
+      console.error(
+        "Cannot emit fetched new task: Socket not initialized or missing roomId"
+      );
+      return;
+    }
+
+    this.socket.emit(SocketEvents.FETCHED_NEW_TASK, {
+      roomId: this.roomId,
+      task,
+    });
+  }
+  public onIsFetchedNewTask(callback: (task: Task) => void): void {
+    if (!this.socket || !this.roomId) {
+      console.error(
+        "Cannot emit fetched new task: Socket not initialized or missing roomId"
+      );
+      return;
+    }
+    this.socket.on(SocketEvents.FETCHED_NEW_TASK, callback);
+  }
   /**
    * Join a room
    */
