@@ -1,11 +1,8 @@
 import { Task } from "@/components/jira/models/jira-task";
 
-const url = process.env.MY_SERVER_URL || "http://localhost:3000";
+const url = process.env.MY_SERVER_URL || "http://localhost:8080";
 
 type Token = string | null;
-const fetchHeaders = new Headers();
-fetchHeaders.append("Content-Type", "application/json");
-fetchHeaders.append("X-API-Key", process.env.X_API_KEY ?? "");
 
 class MyServerProvider {
   private static instance: MyServerProvider;
@@ -21,14 +18,11 @@ class MyServerProvider {
   }
 
   public async getToken(): Promise<Token> {
-    if (!process.env.MY_SERVER_URL) {
-      throw new Error("Missing env variables");
-    }
     if (this.token) return this.token;
 
     const response = await fetch(`${url}/api/user/login`, {
       method: "POST",
-      headers: fetchHeaders,
+      headers: this.fetchHeaders,
       body: JSON.stringify({
         email: process.env.MY_EMAIL,
         password: process.env.MY_PASSWORD,
@@ -44,26 +38,36 @@ class MyServerProvider {
       if (!this.token) {
         this.token = await this.getToken();
       }
-      this.updateHeadersToken();
+      // this.updateHeadersToken();
       const response = await fetch(`${url}/api/jira/task/${id}`, {
         method: "POST",
         body: JSON.stringify({ fields: "" }),
 
-        headers: { ...fetchHeaders, Authorization: `Bearer ${this.token}`,"Content-Type": "application/json" },
+        headers: {
+          ...this.fetchHeaders,
+          Authorization: `Bearer ${this.token}`,
+          "Content-Type": "application/json",
+        },
       });
-      // if (!response.ok) {
-      //   throw new Error(
-      //     `Error fetching task with id ${id}: ${JSON.stringify(response.text())}`
-      //   );
-      // }
+      if (!response.ok) {
+        throw new Error(
+          `Error fetching task with id ${id}: ${response.status} ${response.statusText}`
+        );
+      }
       return await response.json();
     } catch (error) {
       console.error(error);
       throw error;
     }
   }
-  private updateHeadersToken() {
-    fetchHeaders.append("Authorization", `Bearer ${this.token}`);
+  // private updateHeadersToken() {
+  //   fetchHeaders.append("Authorization", `Bearer ${this.token}`);
+  // }
+  private get fetchHeaders() {
+    return {
+      "Content-Type": "application/json",
+      "X-API-Key": process.env.X_API_KEY ?? "",
+    };
   }
 }
 
