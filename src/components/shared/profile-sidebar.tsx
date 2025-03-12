@@ -12,7 +12,7 @@ export function ProfileSidebar({
       {/* Overlay */}
       {isOpen && (
         <div
-          className="fixed inset-0 bg-blue-900 bg-opacity-30 z-40"
+          className="fixed inset-0 bg-gray-900 opacity-85 z-40"
           onClick={onClose}
         ></div>
       )}
@@ -52,7 +52,7 @@ export function ProfileSidebar({
               MK
             </div>
             <div>
-              <p className="font-medium text-blue-900">Michal Maleszewski</p>
+              <p className="font-medium text-blue-900">Michał Maleszewski</p>
               <p className="text-sm text-sky-600">user@example.com</p>
             </div>
           </div>
