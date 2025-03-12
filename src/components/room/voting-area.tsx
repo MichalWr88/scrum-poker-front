@@ -71,7 +71,8 @@ const VotingArea = () => {
 
   // Function to handle when a user casts a vote
   const handleVote = (vote: string) => {
-    console.log(vote);
+    if (currentVote === vote) return;
+
     setCurrentVote(vote);
     socketService.sendVote(vote);
   };
@@ -86,18 +87,18 @@ const VotingArea = () => {
     <>
       {/* Voting area */}
       <div className="bg-sky-100 p-6 rounded-lg shadow">
-        <h3 className="text-lg font-semibold text-blue-900 mb-4">
+        <h3 className="text-sm font-semibold text-blue-900 mb-4">
           Select Your Estimate
         </h3>
-        <div className="flex flex-wrap gap-2 justify-around">
+        <div className="grid grid-cols-8 gap-2">
           {fibonacciVotes.map((value) => (
             <button
               key={value}
               onClick={() => handleVote(value)}
-              className={`w-[60] py-2 text-center rounded-md font-bold transition-colors ${
+              className={`w-[60] py-2 text-center rounded-md font-bold transition-colors  ${
                 currentVote === value
                   ? "bg-orange-500 text-white"
-                  : "bg-white text-blue-900 border border-sky-200 hover:bg-sky-200"
+                  : "bg-white text-blue-900 border border-sky-200 hover:bg-sky-200 cursor-pointer"
               }`}
             >
               {value}
@@ -114,7 +115,7 @@ const VotingArea = () => {
             </h2>
           </div>
 
-          <ul className="space-y-3">
+          <ul className="space-y-3 grid grid-cols-2 gap-2">
             {participants.map((participant) => (
               <li
                 key={participant.userId}
