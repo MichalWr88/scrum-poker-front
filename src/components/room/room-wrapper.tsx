@@ -8,9 +8,9 @@ const RoomWrapper = ({
   votingComponent: React.ReactNode;
 }) => {
   return (
-    <div className="flex h-screen">
+    <div className="flex h-full gap-4">
       {/* Left side (70%): Voting area and participants */}
-      <div className="w-4/6 p-6 flex flex-col gap-6">
+      <div className="w-4/6 flex flex-col gap-6">
         {/* Voting controls and action buttons */}
         <div className="flex justify-between items-center">
           {actionComponent}
