@@ -7,7 +7,7 @@ export function Footer() {
         </div>
         <div className="flex items-center space-x-4">
           <span>Version: 1.0.0</span>
-          <span>Created by: Michal Kowalski</span>
+          <span>Created by: Michal Maleszewski</span>
         </div>
       </div>
     </footer>

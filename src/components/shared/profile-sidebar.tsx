@@ -52,7 +52,7 @@ export function ProfileSidebar({
               MK
             </div>
             <div>
-              <p className="font-medium text-blue-900">Michal Kowalski</p>
+              <p className="font-medium text-blue-900">Michal Maleszewski</p>
               <p className="text-sm text-sky-600">user@example.com</p>
             </div>
           </div>
