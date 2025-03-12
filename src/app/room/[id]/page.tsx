@@ -5,7 +5,7 @@ import VotingArea from "@/components/room/voting-area";
 
 export default async function RoomPage() {
   return (
-    <div className="h-screen flex-col overflow-auto p-3">
+    <div className="h-full flex-col overflow-auto p-3">
       <RoomWrapper
         actionComponent={<ActionButtons />}
         votingComponent={<VotingArea />}
