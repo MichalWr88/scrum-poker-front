@@ -3,8 +3,10 @@
 import { useState } from "react";
 import Link from "next/link";
 import { ProfileSidebar } from "./profile-sidebar";
+import { useParams } from "next/navigation";
 
 export function Navbar() {
+  const params = useParams();
   const [isLoggedIn, setIsLoggedIn] = useState(false);
   const [isSidebarOpen, setIsSidebarOpen] = useState(false);
 
@@ -26,6 +28,9 @@ export function Navbar() {
               Scrum Poker with JIRA
             </span>
           </Link>
+          {params.id && (
+            <span className="text-xl font-bold text-blue-900 ">{`Room: ${params.id}`}</span>
+          )}
 
           <div>
             {!isLoggedIn ? (
