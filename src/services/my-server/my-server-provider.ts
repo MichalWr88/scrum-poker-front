@@ -1,4 +1,4 @@
-import { Task } from "@/components/jira/models/jira-task";
+import { Task } from "@/src/components/jira/models/jira-task";
 
 const url = process.env.MY_SERVER_URL || "http://localhost:8080";
 
