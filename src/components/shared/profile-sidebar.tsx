@@ -1,11 +1,15 @@
 "use client";
 
+import { User } from "next-auth";
+
 export function ProfileSidebar({
   isOpen,
   onClose,
+  user,
 }: {
   isOpen: boolean;
   onClose: () => void;
+  user: User;
 }) {
   return (
     <>
@@ -52,8 +56,8 @@ export function ProfileSidebar({
               MK
             </div>
             <div>
-              <p className="font-medium text-blue-900">Michał Maleszewski</p>
-              <p className="text-sm text-sky-600">user@example.com</p>
+              <p className="font-medium text-blue-900">{user?.name}</p>
+              <p className="text-sm text-sky-600">{user?.email}</p>
             </div>
           </div>
 
@@ -62,15 +66,9 @@ export function ProfileSidebar({
               Profile Settings
             </button>
             <button className="w-full text-left py-2 px-4 rounded-md hover:bg-sky-50 text-blue-900 font-medium">
-              Preferences
-            </button>
-            <button className="w-full text-left py-2 px-4 rounded-md hover:bg-sky-50 text-blue-900 font-medium">
-              History
+              History of votes
             </button>
             <hr className="my-4 border-sky-200" />
-            <button className="w-full text-left py-2 px-4 rounded-md bg-red-50 text-red-600 font-medium hover:bg-red-100">
-              Logout
-            </button>
           </div>
         </div>
       </div>
