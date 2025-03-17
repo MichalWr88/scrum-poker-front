@@ -1,10 +1,7 @@
-import { CreateRoom } from "@/components/create-room";
 
 export default function Home() {
   return (
     <div className="min-h-screen flex flex-col">
-
-
       {/* Hero Section */}
       <section className="bg-gradient-to-r from-cyan-600 to-blue-900 text-white py-20">
         <div className="max-w-7xl mx-auto px-4 text-center">
@@ -12,12 +9,9 @@ export default function Home() {
             Estimate User Stories with Confidence
           </h1>
           <p className="text-xl md:text-2xl mb-8 max-w-3xl mx-auto">
-            A simple, powerful planning poker tool for agile teams to
-            collaborate remotely
+            A simple Scrum Poker application with JIRA integration for agile
+            teams to collaborate remotely.
           </p>
-          <div className="mt-10">
-            <CreateRoom />
-          </div>
         </div>
       </section>
 
@@ -117,7 +111,7 @@ export default function Home() {
             How It Works
           </h2>
 
-          <div className="grid md:grid-cols-4 gap-4">
+          <div className="grid md:grid-cols-5 gap-4">
             <div className="text-center">
               <div className="w-12 h-12 bg-cyan-600 rounded-full flex items-center justify-center mx-auto mb-4 text-white font-bold">
                 1
@@ -165,6 +159,18 @@ export default function Home() {
                 Discuss and find agreement on estimates
               </p>
             </div>
+
+            <div className="text-center">
+              <div className="w-12 h-12 bg-cyan-600 rounded-full flex items-center justify-center mx-auto mb-4 text-white font-bold">
+                5
+              </div>
+              <h3 className="font-semibold mb-2 text-blue-900">
+                Finalize Estimate
+              </h3>
+              <p className="text-blue-900">
+                Submit the final estimated value to jira with one click
+              </p>
+            </div>
           </div>
         </div>
       </section>
@@ -179,7 +185,6 @@ export default function Home() {
             Join thousands of agile teams who use our tool for better
             estimations
           </p>
-          <CreateRoom />
         </div>
       </section>
     </div>
