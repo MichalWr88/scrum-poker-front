@@ -1,9 +1,10 @@
 "use client";
 
-import { socketService, Vote } from "@/services/socket/socket-service";
+import { socketService, Vote } from "@/src/services/socket/socket-service";
 import StatisticsWrapper from "./statistics/statistics-wrapper";
 import { useEffect, useState } from "react";
 import { useParams } from "next/navigation";
+import { useSession } from "next-auth/react";
 
 const fibonacciVotes = [
   "0",
@@ -22,15 +23,16 @@ const fibonacciVotes = [
 // const tShirtVotes = ["XS", "S", "M", "L", "XL", "XXL"];
 
 const VotingArea = () => {
+  const { data: session } = useSession();
+  const username = session?.user?.name ?? null;
   const [participants, setParticipants] = useState<Vote[]>([]);
   const [revealed] = useState(false);
   const [currentVote, setCurrentVote] = useState<string | number | null>(null);
-  const [username] = useState(`User-${(Math.random() * 1000).toFixed(0)}`);
   const params = useParams();
   const roomId = params?.id as string;
-  console.log("render22");
-  // Set up socket connection and event listeners
+
   useEffect(() => {
+    if (!username) return;
     console.log("render");
     // Initialize socket connection
     socketService.init(username, roomId);
