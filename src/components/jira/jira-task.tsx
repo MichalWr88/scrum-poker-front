@@ -4,15 +4,19 @@ import { useEffect, useState, useTransition } from "react";
 import { Task } from "./models/jira-task";
 import { updateTaskKey } from "./jira-server-actions";
 
-import { socketService } from "@/services/socket/socket-service";
+import { socketService } from "@/src/services/socket/socket-service";
 import JiraTaskLink from "./jira-task-link";
+import { useSession } from "next-auth/react";
 
 const JiraTask = ({ initialKey }: { initialKey: string }) => {
+  const session = useSession();
+  const user = session.data?.user;
   const [keyValue, setKeyValue] = useState(initialKey);
   const [taskData, setTaskData] = useState<Task | undefined>();
   const [isPending, startTransition] = useTransition();
   // const router = useRouter();
   useEffect(() => {
+    if (!user) return;
     startTransition(async () => {
       if (taskData) return;
       const form = new FormData();
@@ -23,9 +27,10 @@ const JiraTask = ({ initialKey }: { initialKey: string }) => {
       socketService.emitFetchedNewTask(updatedTask);
     });
     // eslint-disable-next-line react-hooks/exhaustive-deps
-  }, [keyValue]);
+  }, [keyValue, user]);
 
   useEffect(() => {
+    if (!user) return;
     socketService.onIsPendingNewTask(() => {
       console.log("Pending new task");
       startTransition(() => {
@@ -38,7 +43,7 @@ const JiraTask = ({ initialKey }: { initialKey: string }) => {
         setTaskData(task);
       });
     });
-  }, []);
+  }, [user]);
 
   async function handleSubmit(event: React.FormEvent<HTMLFormElement>) {
     event.preventDefault();
@@ -141,16 +146,7 @@ const JiraTask = ({ initialKey }: { initialKey: string }) => {
       </div>
     </div>
   );
-  // } catch (error) {
-  //   if (error instanceof Error) {
-  //     return (
-  //       <div className="text-red-700 text-2xl">Error: {error.message}</div>
-  //     );
-  //   }
-  //   return (
-  //     <div className="text-red-700 text-2xl">Error: {error as string}</div>
-  //   );
-  // }
+
 };
 
 export default JiraTask;
