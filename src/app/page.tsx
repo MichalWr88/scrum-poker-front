@@ -1,7 +1,10 @@
+import { Footer } from "../components/shared/footer";
+import { Navbar } from "../components/shared/navbar";
 
 export default function Home() {
   return (
     <div className="min-h-screen flex flex-col">
+      <Navbar />
       {/* Hero Section */}
       <section className="bg-gradient-to-r from-cyan-600 to-blue-900 text-white py-20">
         <div className="max-w-7xl mx-auto px-4 text-center">
@@ -187,6 +190,7 @@ export default function Home() {
           </p>
         </div>
       </section>
+      <Footer />
     </div>
   );
 }
