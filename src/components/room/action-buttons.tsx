@@ -1,6 +1,6 @@
 "use client";
 
-import { socketService } from "@/services/socket/socket-service";
+import { socketService } from "@/src/services/socket/socket-service";
 import { useState } from "react";
 
 const ActionButtons = () => {

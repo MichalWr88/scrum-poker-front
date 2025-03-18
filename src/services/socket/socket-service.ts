@@ -1,4 +1,4 @@
-import { Task } from "@/components/jira/models/jira-task";
+import { Task } from "@/src/components/jira/models/jira-task";
 import { io, Socket } from "socket.io-client";
 
 export enum SocketEvents {

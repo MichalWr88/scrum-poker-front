@@ -1,8 +1,18 @@
-import { Vote } from "@/services/socket/socket-service";
+import { Vote } from "@/src/services/socket/socket-service";
 import React from "react";
 
 type Props = {
   participants: Vote[];
+};
+const countAverage = (participants: Vote[]) => {
+  return (
+    participants
+      .filter((p) => !!p.value)
+      .reduce(
+        (sum, p) => sum + ((p.value && parseFloat(p.value.toString())) || 0),
+        0
+      ) / participants.length
+  ).toFixed(1);
 };
 
 const StatisticsWrapper = ({ participants }: Props) => {
@@ -14,13 +24,7 @@ const StatisticsWrapper = ({ participants }: Props) => {
           <div>
             <p className="text-sm text-sky-600">Average</p>
             <p className="font-medium text-blue-900">
-              {participants
-                .filter((p) => !!p.value)
-                .reduce(
-                  (sum, p) =>
-                    sum + ((p.value && parseFloat(p.value.toString())) || 0),
-                  0
-                ) / participants.length}
+              {countAverage(participants)}
             </p>
           </div>
           <div>

@@ -1,6 +1,6 @@
 "use server";
 
-import { myServerProvider } from "@/services/my-server/my-server-provider";
+import { myServerProvider } from "@/src/services/my-server/my-server-provider";
 
 // Server Action: updateTaskKey
 export async function updateTaskKey(formData: FormData) {
