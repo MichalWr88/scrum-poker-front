@@ -5,18 +5,18 @@ import { Task } from "./models/jira-task";
 import { updateTaskKey } from "./jira-server-actions";
 
 import { socketService } from "@/src/services/socket/socket-service";
-import JiraTaskLink from "./jira-task-link";
 import { useSession } from "next-auth/react";
+import JiraForm from "./jira-form";
 
-const JiraTask = ({ initialKey }: { initialKey: string }) => {
+const JiraTask = () => {
   const session = useSession();
   const user = session.data?.user;
-  const [keyValue, setKeyValue] = useState(initialKey);
+  const [keyValue, setKeyValue] = useState("");
   const [taskData, setTaskData] = useState<Task | undefined>();
   const [isPending, startTransition] = useTransition();
   // const router = useRouter();
   useEffect(() => {
-    if (!user) return;
+    if (!user || !keyValue) return;
     startTransition(async () => {
       if (taskData) return;
       const form = new FormData();
@@ -62,12 +62,15 @@ const JiraTask = ({ initialKey }: { initialKey: string }) => {
       // router.refresh();
     });
   }
-  if (!taskData || isPending) {
+  if (isPending) {
     return (
-      <div className="font-bold text-4xl text-sky-700 w-full h-full flex justify-center items-center">
+      <div className="font-bold text-4xl text-sky-700 w-90 h-full flex justify-center items-center">
         Loading...
       </div>
     );
+  }
+  if (!taskData) {
+    return <JiraForm handleSubmit={handleSubmit} />;
   }
 
   const {
@@ -75,36 +78,9 @@ const JiraTask = ({ initialKey }: { initialKey: string }) => {
     fields: { description, labels, summary, subtasks },
   } = taskData;
   return (
-    <div className="bg-white rounded-lg shadow flex flex-col gap-4 py-4">
-      <form
-        onSubmit={handleSubmit}
-        className="flex items-center justify-between px-6 py-2 border-b-2"
-      >
-        <div className="flex gap-2 items-center ">
-          <label
-            htmlFor="key"
-            className="block text-sm font-medium text-sky-600"
-          >
-            Key
-          </label>
-          <input
-            type="text"
-            name="key"
-            id="key"
-            defaultValue={key}
-            className="block border border-sky-200 p-2 rounded-md  text-sky-600 w-30"
-          />
-          <button
-            type="submit"
-            className="bg-blue-900 text-white px-4 py-2 rounded-md hover:bg-blue-800"
-          >
-            Update Key
-          </button>
-        </div>
-
-        <JiraTaskLink jiraKey={key} />
-      </form>
-      <div className="flex flex-col gap-2 px-6">
+    <div className="bg-white rounded-lg shadow flex flex-col gap-4 py-4  h-full max-w-3xl">
+      <JiraForm handleSubmit={handleSubmit} jiraKey={key} />
+      <div className="flex flex-col gap-2 px-6 overflow-auto">
         <div className="flex gap-2">
           {labels.map((label) => (
             <span
@@ -146,7 +122,6 @@ const JiraTask = ({ initialKey }: { initialKey: string }) => {
       </div>
     </div>
   );
-
 };
 
 export default JiraTask;

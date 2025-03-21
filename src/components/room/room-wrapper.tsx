@@ -16,8 +16,8 @@ const RoomWrapper = async ({
   }
 
   return (
-    <div className="flex h-full gap-4">
-      <div className="w-4/6 flex flex-col gap-6">
+    <div className="flex gap-4 p-4 wrapper-footer-navbar">
+      <div className="flex flex-col gap-6 flex-grow ">
         {/* Voting controls and action buttons */}
         <div className="flex justify-between items-center">
           {actionComponent}
@@ -26,7 +26,7 @@ const RoomWrapper = async ({
         {votingComponent}
       </div>
 
-      <div className="w-3/6 bg-sky-50 border-l border-sky-200 overflow-auto">
+      <div className="bg-sky-50 border-l h-full">
         {children}
       </div>
     </div>

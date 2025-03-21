@@ -7,14 +7,12 @@ import { SessionProvider } from "next-auth/react";
 export default async function RoomPage() {
   return (
     <SessionProvider>
-      <div className="h-full flex-col overflow-auto p-3">
-        <RoomWrapper
-          actionComponent={<ActionButtons />}
-          votingComponent={<VotingArea />}
-        >
-          <JiraTask initialKey="AAA-2063" />
-        </RoomWrapper>
-      </div>
+      <RoomWrapper
+        actionComponent={<ActionButtons />}
+        votingComponent={<VotingArea />}
+      >
+        <JiraTask />
+      </RoomWrapper>
     </SessionProvider>
   );
 }
