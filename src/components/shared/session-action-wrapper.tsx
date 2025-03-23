@@ -14,21 +14,23 @@ export async function signOutWithGoogle() {
 
 export default async function SessionActionWrapper() {
   const session = await auth();
-  console.log(session);
+  console.log("ss2", session);
 
   if (session?.user) {
     return (
-      <form action={signOutWithGoogle}>
-        <div className="flex items-center space-x-4">
-          <ProfileSidebarActionButton user={session.user} />
-          <button
-            type="submit"
-            className="select-none bg-orange-500 border border-transparent rounded-md px-4 py-2 cursor-pointer text-white font-medium hover:bg-orange-600 transition-colors"
-          >
-            Sign out
-          </button>
-        </div>
-      </form>
+      <div className="flex flex-row ">
+        <ProfileSidebarActionButton user={session.user} />
+        <form action={signOutWithGoogle}>
+          <div className="flex items-center space-x-4">
+            <button
+              type="submit"
+              className="select-none bg-orange-500 border border-transparent rounded-md px-4 py-2 cursor-pointer text-white font-medium hover:bg-orange-600 transition-colors"
+            >
+              Sign out
+            </button>
+          </div>
+        </form>
+      </div>
     );
   } else {
     return (
