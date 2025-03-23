@@ -1,6 +1,7 @@
 import type { Metadata } from "next";
 import { Geist, Geist_Mono } from "next/font/google";
 import "./globals.css";
+import { initConnectMongo } from "../services/mongodb/service";
 
 const geistSans = Geist({
   variable: "--font-geist-sans",
@@ -17,11 +18,12 @@ export const metadata: Metadata = {
   description: "A collaborative planning poker tool for agile teams",
 };
 
-export default function RootLayout({
+export default async function RootLayout({
   children,
 }: {
   children: React.ReactNode;
 }) {
+  await initConnectMongo();
   return (
     <html lang="en" className=" h-fit">
       <body
