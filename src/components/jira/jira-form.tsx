@@ -18,11 +18,10 @@ const JiraForm = ({ handleSubmit, jiraKey }: Props) => {
       onSubmit={handleSubmit}
       className="flex items-center justify-between px-6 py-2 border-b-2"
     >
+      {jiraKey && <JiraTaskLink jiraKey={jiraKey} />}
       <div className="flex gap-2 items-center ">
-        <label htmlFor="key" className="block text-sm font-medium text-sky-600">
-          Key
-        </label>
         <input
+          placeholder="Enter Jira Key"
           type="text"
           name="key"
           id="key"
@@ -55,8 +54,6 @@ const JiraForm = ({ handleSubmit, jiraKey }: Props) => {
           </svg>
         </button>
       </div>
-      {jiraKey && <JiraTaskLink jiraKey={jiraKey} />}
-     
     </form>
   );
 };
