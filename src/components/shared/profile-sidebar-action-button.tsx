@@ -15,8 +15,12 @@ const ProfileSidebarActionButton = ({ user }: Props) => {
     setIsSidebarOpen(!isSidebarOpen);
   };
   return (
-    <div>
-      <div className="w-10 h-10 rounded-full bg-gray-400 flex items-center justify-center mr-2 text-lg font-bold text-white" onClick={toggleSidebar}>
+    <>
+      <div
+        title="Profile"
+        className="w-10 h-10 rounded-full  flex items-center justify-center mr-2 text-lg font-bold cursor-pointer hover:transform hover:scale-110 transition-transform"
+        onClick={toggleSidebar}
+      >
         {user?.image ? (
           <Image
             src={user?.image}
@@ -32,8 +36,12 @@ const ProfileSidebarActionButton = ({ user }: Props) => {
             .join("") || "?"
         )}
       </div>
-      <ProfileSidebar isOpen={isSidebarOpen} onClose={toggleSidebar} user={user} />
-    </div>
+      <ProfileSidebar
+        isOpen={isSidebarOpen}
+        onClose={toggleSidebar}
+        user={user}
+      />
+    </>
   );
 };
 
