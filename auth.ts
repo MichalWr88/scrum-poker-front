@@ -14,6 +14,10 @@ declare module "next-auth" {
     dbId: unknown;
     role: string;
     createdAt: Date;
+    id?: string
+    name?: string | null
+    email?: string | null
+    image?: string | null
   }
 }
 
