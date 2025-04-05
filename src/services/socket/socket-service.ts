@@ -1,4 +1,5 @@
 import { Task } from "@/src/components/jira/models/jira-task";
+import { User } from "next-auth";
 import { io, Socket } from "socket.io-client";
 
 export enum SocketEvents {
@@ -27,15 +28,16 @@ export enum SocketEvents {
 
 export interface Vote {
   userId: string;
-  userName: string;
+  user: PartialUser;
   value: string | number | null;
 }
+type PartialUser = Required<Pick<User, "name" | "email" | "dbId" | "role">>;
 
 export class SocketService {
   private static instance: SocketService;
   private socket: Socket | null = null;
   private roomId: string | null = null;
-  private username: string | null = null;
+  private user: PartialUser | null = null;
 
   private constructor() {}
 
@@ -49,8 +51,8 @@ export class SocketService {
   /**
    * Initialize socket connection
    */
-  public init(username: string, roomId: string): Socket {
-    this.username = username;
+  public init(user: PartialUser, roomId: string): Socket {
+    this.user = user;
     this.roomId = roomId;
 
     this.socket = io(
@@ -146,16 +148,16 @@ export class SocketService {
    * Join a room
    */
   public joinRoom(): void {
-    if (!this.socket || !this.roomId || !this.username) {
+    if (!this.socket || !this.roomId || !this.user) {
       console.error(
-        "Cannot join room: Socket not initialized or missing roomId/username"
+        "Cannot join room: Socket not initialized or missing roomId/user"
       );
       return;
     }
 
     this.socket.emit(SocketEvents.JOIN_ROOM, {
       roomId: this.roomId,
-      userName: this.username,
+      user: this.user,
     });
   }
 
