@@ -21,9 +21,9 @@ const RoomPathGuard = ({ children, rooms }: Props) => {
   if (!roomExists) {
 
     return (
-      <div className="flex flex-col items-center justify-center h-screen space-y-4">
-        <h1 className="text-2xl font-bold text-red-500">Room not found</h1>
-        <p className="text-center text-gray-600">
+      <div className="flex flex-col items-center justify-center h-screen space-y-4 max-w-2xl">
+        <h1 className="text-4xl font-bold text-red-500 uppercase">Room not found</h1>
+        <p className="text-center text-gray-300 text-xl leading-relaxed tracking-wider">
           The room you are looking for does not exist. Please check the list of
           acceptable rooms in your profile, accessible via the navbar.
         </p>
