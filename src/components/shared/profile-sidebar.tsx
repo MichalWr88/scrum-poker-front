@@ -1,6 +1,7 @@
 "use client";
-
 import { User } from "next-auth";
+import Image from "next/image";
+import { updateRole } from "./profile-server-actions";
 
 export function ProfileSidebar({
   isOpen,
@@ -53,16 +54,52 @@ export function ProfileSidebar({
 
           <div className="flex items-center mb-8">
             <div className="w-16 h-16 bg-cyan-600 rounded-full flex items-center justify-center text-white text-xl font-bold mr-4">
-              MK
+              {user?.image ? (
+                <Image
+                  width={60}
+                  height={60}
+                  src={user?.image}
+                  alt="User Avatar"
+                  className="w-full h-full rounded-full"
+                />
+              ) : (
+                user?.name
+                  ?.split(" ")
+                  .map((n) => n[0])
+                  .join("") || "?"
+              )}
             </div>
             <div>
               <p className="font-medium text-blue-900">{user?.name}</p>
               <p className="text-sm text-sky-600">{user?.email}</p>
+              <p className="text-sm text-sky-800 uppercase bold">{user.role}</p>
             </div>
           </div>
 
           <div className="space-y-4">
-            <button className="w-full text-left py-2 px-4 rounded-md hover:bg-sky-50 text-blue-900 font-medium">
+            <form action={updateRole}>
+              <label className="block text-sm font-medium text-blue-900 mb-2">
+                Change Role
+              </label>
+              <select
+                name="role"
+                defaultValue={user.role}
+                className="text-blue-900 block w-full py-2 px-3 border border-gray-300  rounded-md shadow-sm focus:outline-none focus:ring-sky-500 focus:border-sky-500 sm:text-sm"
+              >
+                <option value="developer">developer</option>
+                <option value="tester">tester</option>
+              </select>
+              <button
+                type="submit"
+                className="mt-4 w-full py-2 px-4 bg-sky-600 text-white rounded-md hover:bg-sky-700"
+              >
+                Update Role
+              </button>
+            </form>
+            <button
+              type="button"
+              className="w-full text-left py-2 px-4 rounded-md hover:bg-sky-50 text-blue-900 font-medium"
+            >
               Profile Settings
             </button>
             <button className="w-full text-left py-2 px-4 rounded-md hover:bg-sky-50 text-blue-900 font-medium">

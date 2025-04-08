@@ -1,14 +1,16 @@
 import { Task } from "@/src/components/jira/models/jira-task";
+import { BaseService } from "../shared/baseService";
 
 const url = process.env.MY_SERVER_URL || "http://localhost:8080";
-
 type Token = string | null;
 
-class MyServerProvider {
+class MyServerProvider extends BaseService {
   private static instance: MyServerProvider;
   private token: Token = null;
 
-  private constructor() {}
+  private constructor() {
+    super();
+  }
 
   public static getInstance(): MyServerProvider {
     if (!MyServerProvider.instance) {
@@ -33,21 +35,18 @@ class MyServerProvider {
     this.token = responseJson.accessToken;
     return this.token;
   }
+
   public async getTaskById(id: string): Promise<Task> {
     try {
       if (!this.token) {
         this.token = await this.getToken();
       }
-      // this.updateHeadersToken();
       const response = await fetch(`${url}/api/jira/task/${id}`, {
         method: "POST",
         body: JSON.stringify({ fields: "" }),
-
-        headers: {
-          ...this.fetchHeaders,
+        headers: this.mergeHeaders({
           Authorization: `Bearer ${this.token}`,
-          "Content-Type": "application/json",
-        },
+        }),
       });
       if (!response.ok) {
         throw new Error(
@@ -59,15 +58,6 @@ class MyServerProvider {
       console.error(error);
       throw error;
     }
-  }
-  // private updateHeadersToken() {
-  //   fetchHeaders.append("Authorization", `Bearer ${this.token}`);
-  // }
-  private get fetchHeaders() {
-    return {
-      "Content-Type": "application/json",
-      "X-API-Key": process.env.X_API_KEY ?? "",
-    };
   }
 }
 

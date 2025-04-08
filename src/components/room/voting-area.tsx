@@ -24,7 +24,7 @@ const fibonacciVotes = [
 
 const VotingArea = () => {
   const { data: session } = useSession();
-  const username = session?.user?.name ?? null;
+  const user = session?.user ?? null;
   const [participants, setParticipants] = useState<Vote[]>([]);
   const [revealed] = useState(false);
   const [currentVote, setCurrentVote] = useState<string | number | null>(null);
@@ -32,10 +32,13 @@ const VotingArea = () => {
   const roomId = params?.id as string;
 
   useEffect(() => {
-    if (!username) return;
-    console.log("render");
+    if (!user?.name || !user.dbId || !user.email) return;
+
     // Initialize socket connection
-    socketService.init(username, roomId);
+    socketService.init(
+      { name: user.name, dbId: user.dbId, email: user.email, role: user.role },
+      roomId
+    );
 
     // Set up listeners
     socketService.onRoomUsersUpdated((updatedParticipants) => {
@@ -69,7 +72,7 @@ const VotingArea = () => {
       socketService.disconnect();
       socketService.removeAllListeners();
     };
-  }, [roomId, username]);
+  }, [roomId, user?.name]);
 
   // Function to handle when a user casts a vote
   const handleVote = (vote: string) => {
@@ -117,26 +120,29 @@ const VotingArea = () => {
             </h2>
           </div>
 
-          <ul className="space-y-3 grid grid-cols-2 gap-2">
-            {participants.map((participant) => (
-              <li
-                key={participant.userId}
-                className="flex items-center justify-between p-3 bg-sky-50 rounded-lg"
-              >
-                <span className="text-blue-900">
-                  {participant.userName}{" "}
-                  {isCurrentUser(participant.userId) ? "(You)" : ""}
-                </span>
-                <span className="font-mono font-bold text-cyan-600">
-                  {participant.value
-                    ? revealed
-                      ? participant.value
-                      : "✓"
-                    : "..."}
-                </span>
-              </li>
-            ))}
-          </ul>
+          {user?.name && (
+            <ul className="space-y-3 grid grid-cols-2 gap-2">
+              {participants.map((participant) => (
+                <li
+                  key={participant.userId}
+                  className="flex items-center justify-between p-3 bg-sky-50 rounded-lg"
+                >
+                  <p className="text-blue-900 flex gap-2">
+                    <span>{participant.user.name} </span>
+                    <span className="italic text-blue-950 uppercase">{participant.user.role.split("")[0]} </span>
+                    {isCurrentUser(participant.userId) ? "(You)" : ""}
+                  </p>
+                  <span className="font-mono font-bold text-cyan-600">
+                    {participant.value
+                      ? revealed
+                        ? participant.value
+                        : "✓"
+                      : "..."}
+                  </span>
+                </li>
+              ))}
+            </ul>
+          )}
         </div>
         {/* Statistics */}
         <StatisticsWrapper participants={participants} />
