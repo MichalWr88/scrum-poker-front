@@ -6,9 +6,13 @@ import { useState } from "react";
 
 type Props = {
   user: User;
+  rooms?: {
+    _id: string;
+    name: string;
+  }[];
 };
 
-const ProfileSidebarActionButton = ({ user }: Props) => {
+const ProfileSidebarActionButton = ({ user, rooms }: Props) => {
   const [isSidebarOpen, setIsSidebarOpen] = useState(false);
 
   const toggleSidebar = () => {
@@ -37,6 +41,7 @@ const ProfileSidebarActionButton = ({ user }: Props) => {
         )}
       </div>
       <ProfileSidebar
+        rooms={rooms}
         isOpen={isSidebarOpen}
         onClose={toggleSidebar}
         user={user}

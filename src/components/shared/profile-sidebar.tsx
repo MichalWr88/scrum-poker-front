@@ -2,15 +2,21 @@
 import { User } from "next-auth";
 import Image from "next/image";
 import { updateRole } from "./profile-server-actions";
+import RoomList from "./sidebar/rooms-list";
 
 export function ProfileSidebar({
   isOpen,
   onClose,
   user,
+  rooms,
 }: {
   isOpen: boolean;
   onClose: () => void;
   user: User;
+  rooms?: {
+    _id: string;
+    name: string;
+  }[];
 }) {
   return (
     <>
@@ -107,6 +113,7 @@ export function ProfileSidebar({
             </button>
             <hr className="my-4 border-sky-200" />
           </div>
+          <RoomList rooms={rooms} />
         </div>
       </div>
     </>

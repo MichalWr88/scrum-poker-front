@@ -1,6 +1,7 @@
 "use server";
 import { signIn, auth, signOut } from "@/auth";
 import ProfileSidebarActionButton from "./profile-sidebar-action-button";
+import scrumBackendService from "@/src/services/scrum-backend/scrum-backend.provider";
 
 export async function authGoogle() {
   "use server";
@@ -14,12 +15,13 @@ export async function signOutWithGoogle() {
 
 export default async function SessionActionWrapper() {
   const session = await auth();
-  console.log("ss2", session);
+  const rooms = await scrumBackendService.getRooms();
+
 
   if (session?.user) {
     return (
       <div className="flex flex-row ">
-        <ProfileSidebarActionButton user={session.user} />
+        <ProfileSidebarActionButton user={session.user} rooms={rooms}  />
         <form action={signOutWithGoogle}>
           <div className="flex items-center space-x-4">
             <button
