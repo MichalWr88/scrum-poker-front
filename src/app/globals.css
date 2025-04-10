@@ -25,3 +25,85 @@ body {
 .wrapper-footer-navbar {
   height: calc(100vh - 107px);
 }
+
+  .markdown-wrapper h1,
+  .markdown-wrapper h2,
+  .markdown-wrapper h3,
+  .markdown-wrapper h4,
+  .markdown-wrapper h5,
+  .markdown-wrapper h6 {
+    font-family: var(--font-sans);
+    font-weight: bold;
+    margin: 1em 0;
+  }
+
+  .markdown-wrapper p {
+    font-family: var(--font-sans);
+    line-height: 1.6;
+    margin: 1em 0;
+  }
+
+  .markdown-wrapper a {
+    color: #0070f3;
+    text-decoration: none;
+  }
+
+  .markdown-wrapper a:hover {
+    text-decoration: underline;
+  }
+
+  .markdown-wrapper ul,
+  .markdown-wrapper ol {
+    margin: 1em 0;
+    padding-left: 2em;
+  }
+
+  .markdown-wrapper li {
+    margin: 0.5em 0;
+  }
+
+  .markdown-wrapper blockquote {
+    border-left: 4px solid #ccc;
+    padding-left: 1em;
+    color: #666;
+    font-style: italic;
+    margin: 1em 0;
+  }
+
+  .markdown-wrapper code {
+    font-family: var(--font-mono);
+    background: #f5f5f5;
+    padding: 0.2em 0.4em;
+    border-radius: 4px;
+  }
+
+  .markdown-wrapper pre {
+    font-family: var(--font-mono);
+    background: #f5f5f5;
+    padding: 1em;
+    border-radius: 4px;
+    overflow-x: auto;
+  }
+
+  .markdown-wrapper img {
+    max-width: 100%;
+    height: auto;
+  }
+
+  .markdown-wrapper table {
+    width: 100%;
+    border-collapse: collapse;
+    margin: 1em 0;
+  }
+
+  .markdown-wrapper th,
+  .markdown-wrapper td {
+    border: 1px solid #ddd;
+    padding: 0.5em;
+    text-align: left;
+  }
+
+  .markdown-wrapper th {
+    background: #f5f5f5;
+    font-weight: bold;
+  }
