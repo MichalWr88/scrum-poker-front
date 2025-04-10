@@ -9,11 +9,19 @@
     "lint": "next lint"
   },
   "dependencies": {
+    "@mdx-js/react": "^3.1.0",
+    "html-to-jsx-transform": "^1.2.0",
+    "jira2md": "^3.0.1",
     "mongoose": "^8.12.1",
     "next": "^15.2.4",
     "next-auth": "^5.0.0-beta.25",
+    "next-mdx-remote": "^5.0.0",
     "react": "^19.0.0",
     "react-dom": "^19.0.0",
+    "react-markdown": "^10.1.0",
+    "remark": "^15.0.1",
+    "remark-gfm": "^4.0.1",
+    "remark-html": "^16.0.1",
     "socket.io-client": "^4.8.1"
   },
   "devDependencies": {
