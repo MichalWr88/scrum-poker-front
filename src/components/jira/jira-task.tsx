@@ -1,11 +1,23 @@
 "use client";
-
 import { useEffect, useState, useTransition } from "react";
 import { Task } from "./models/jira-task";
 import { updateTaskKey } from "./jira-server-actions";
 import { socketService } from "@/src/services/socket/socket-service";
 import { useSession } from "next-auth/react";
 import JiraForm from "./jira-form";
+import ReactMarkdown from "react-markdown";
+import remarkGfm from "remark-gfm";
+import j2m from "jira2md";
+
+const convertInsTags = (html?: string) => {
+  return html?.replace(/<ins>/g, "+").replace(/<\/ins>/g, "+") || "";
+};
+const wrapWordsWithBold = (markdown: string) => {
+  return markdown.replace(
+    /<~(.*?)>/g,
+    (match, p1) => `**<${p1.toUpperCase()}>**`
+  );
+};
 
 const JiraTask = () => {
   const session = useSession();
@@ -70,6 +82,10 @@ const JiraTask = () => {
     key,
     fields: { description, labels, summary, subtasks },
   } = taskData;
+  const markdown = wrapWordsWithBold(
+    convertInsTags(j2m.to_markdown(wrapWordsWithBold(description)))
+  );
+
   return (
     <div className="bg-white rounded-lg shadow flex flex-col gap-4 py-4  h-full max-w-3xl">
       <JiraForm handleSubmit={handleSubmit} jiraKey={key} />
@@ -91,16 +107,23 @@ const JiraTask = () => {
             <p className="text-sm bg-sky-600 uppercase font-bold text-center">
               Summary
             </p>
-            <p className="font-medium text-blue-900">{summary}</p>
+            <div className="font-medium text-blue-900">
+              {/* <MDXRemote scope={{}}> */}
+              <ReactMarkdown rehypePlugins={[remarkGfm]}>
+                {summary}
+              </ReactMarkdown>
+            </div>
           </div>
 
           <div>
             <p className="text-sm bg-sky-600 uppercase font-bold text-center">
               Description
             </p>
-            <p className="text-sm text-blue-900 p-1 font-mono indent-2 whitespace-pre-line">
-              {description}
-            </p>
+            <div className="text-sm text-blue-900 p-1 font-mono markdown-wrapper">
+              <ReactMarkdown rehypePlugins={[remarkGfm]}>
+                {markdown}
+              </ReactMarkdown>
+            </div>
           </div>
 
           <div>
