@@ -3,10 +3,19 @@ import { BaseService } from "../shared/baseService";
 const BASE_URL = process.env.NEXT_PUBLIC_SOCKET_URL || "http://localhost:3002";
 const mongoApiPath = "/api/mongo";
 
+export type Room = {
+  typeOfEstimate: string;
+  _id: string;
+  name: string;
+  createdAt: string;
+  updatedAt: string;
+  lastSubject: string;
+};
+
 class ScrumBackendService extends BaseService {
   // Rooms endpoints
 
-  async getRooms(): Promise<{ _id: string; name: string }[]> {
+  async getRooms(): Promise<Room[]> {
     try {
       const res = await fetch(`${BASE_URL}${mongoApiPath}/rooms`, {
         next: { revalidate: 86400 },
@@ -26,7 +35,7 @@ class ScrumBackendService extends BaseService {
   }
 
   async addRoom(roomData: unknown): Promise<unknown> {
-    const res = await fetch(`${BASE_URL}/room`, {
+    const res = await fetch(`${BASE_URL}${mongoApiPath}/room`, {
       method: "POST",
       headers: this.fetchHeaders,
       body: JSON.stringify(roomData),
@@ -35,8 +44,8 @@ class ScrumBackendService extends BaseService {
     return res.json();
   }
 
-  async getRoom(roomId: string): Promise<unknown> {
-    const res = await fetch(`${BASE_URL}/room/${roomId}`, {
+  async getRoom(roomId: string): Promise<Room> {
+    const res = await fetch(`${BASE_URL}${mongoApiPath}/room/${roomId}`, {
       headers: this.fetchHeaders,
     });
     if (!res.ok) throw new Error(`Failed to fetch room ${roomId}`);
@@ -44,11 +53,13 @@ class ScrumBackendService extends BaseService {
   }
 
   async editRoom(roomId: string, updateData: unknown): Promise<unknown> {
-    const res = await fetch(`${BASE_URL}/room/${roomId}`, {
+    console.log("editRoom", roomId, updateData, `${BASE_URL}/room/${roomId}`);
+    const res = await fetch(`${BASE_URL}${mongoApiPath}/room/${roomId}`, {
       method: "PATCH",
       headers: this.fetchHeaders,
       body: JSON.stringify(updateData),
     });
+    console.log("editRoom", res);
     if (!res.ok) throw new Error(`Failed to update room ${roomId}`);
     return res.json();
   }
@@ -73,7 +84,7 @@ class ScrumBackendService extends BaseService {
   }
 
   async addSubject(subjectId: string, subjectData: unknown): Promise<unknown> {
-    const res = await fetch(`${BASE_URL}/subject/${subjectId}`, {
+    const res = await fetch(`${BASE_URL}${mongoApiPath}/subject/${subjectId}`, {
       method: "POST",
       headers: this.fetchHeaders,
       body: JSON.stringify(subjectData),
