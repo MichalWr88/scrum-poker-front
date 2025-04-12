@@ -42,6 +42,7 @@ class MyServerProvider extends BaseService {
         this.token = await this.getToken();
       }
       const response = await fetch(`${url}/api/jira/task/${id}`, {
+        next: { revalidate: 10 },
         method: "POST",
         body: JSON.stringify({ fields: "" }),
         headers: this.mergeHeaders({
