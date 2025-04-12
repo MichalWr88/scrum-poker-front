@@ -14,10 +14,10 @@ declare module "next-auth" {
     dbId: unknown;
     role: string;
     createdAt: Date;
-    id?: string
-    name?: string | null
-    email?: string | null
-    image?: string | null
+    id?: string;
+    name?: string | null;
+    email?: string | null;
+    image?: string | null;
   }
 }
 
@@ -56,7 +56,6 @@ export const { handlers, auth, signIn, signOut } = NextAuth(() => {
           session.user.dbId = token.dbId;
           session.user.createdAt = token.createdAt as Date;
         }
-        console.log("session2", session);
         return session;
       },
       async signIn({ user }) {
