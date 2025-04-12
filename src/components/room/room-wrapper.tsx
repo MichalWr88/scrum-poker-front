@@ -18,7 +18,7 @@ const RoomWrapper = async ({
   }
   try {
     const rooms = await scrumBackendService.getRooms();
-    console.log("Rooms:", rooms);
+
     return (
       <div className="flex gap-4 p-4 justify-center items-center wrapper-footer-navbar">
         <RoomPathGuard rooms={rooms}>
