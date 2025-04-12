@@ -8,57 +8,66 @@ import JiraForm from "./jira-form";
 import ReactMarkdown from "react-markdown";
 import remarkGfm from "remark-gfm";
 import j2m from "jira2md";
+import { usePathname } from "next/navigation";
 
 const convertInsTags = (html?: string) => {
   return html?.replace(/<ins>/g, "+").replace(/<\/ins>/g, "+") || "";
 };
-const wrapWordsWithBold = (markdown: string) => {
-  return markdown.replace(
-    /<~(.*?)>/g,
-    (match, p1) => `**<${p1.toUpperCase()}>**`
+const wrapWordsWithBold = (markdown?: string) => {
+  return (
+    markdown?.replace(
+      /<~(.*?)>/g,
+      (match, p1) => `**<${p1.toUpperCase()}>**`
+    ) || ""
   );
 };
 
-const JiraTask = () => {
+const JiraTask = ({ taskId }: { taskId?: string }) => {
   const session = useSession();
+  const path = usePathname().split("/").pop();
   const user = session.data?.user;
-  const [keyValue, setKeyValue] = useState("");
+  const [keyValue, setKeyValue] = useState(taskId ?? "");
   const [taskData, setTaskData] = useState<Task | undefined>();
   const [error, setError] = useState<string | null>(null);
   const [isPending, startTransition] = useTransition();
 
-  useEffect(() => {
-    if (!user || !keyValue) return;
-    startTransition(async () => {
-      if (taskData) return;
-      const form = new FormData();
-      form.append("key", keyValue);
-      const result = await updateTaskKey(form);
-      if ("error" in result) {
-        // set error state so you can show a message, but don't cause a global error.
-        setError(result.error);
-      } else {
-        setTaskData(result);
-        socketService.emitFetchedNewTask(result);
+  const handleTaskUpdate = async (formData: FormData) => {
+    await startTransition(async () => {
+      const newKey = formData.get("key") as string;
+      const roomId = formData.get("roomId") as string;
+      if (!roomId) {
+        setError("No roomId provided");
+        return;
       }
+      if (!newKey) {
+        setError("No key provided");
+        return;
+      }
+      const updatedTask = await updateTaskKey(formData);
+      if ("error" in updatedTask) {
+        setError(updatedTask.error);
+        return;
+      }
+      setKeyValue(updatedTask.key);
+      setTaskData(updatedTask);
+      socketService.emitFetchedNewTask(updatedTask);
+      setError(null);
     });
-  }, [keyValue, user]);
+  };
+  useEffect(() => {
+    if (!user || !keyValue || !path || taskData?.key === keyValue) return;
+    if (taskData) return;
+    const form = new FormData();
+    form.append("key", keyValue);
+    form.append("roomId", path);
+    handleTaskUpdate(form);
+  }, [keyValue, user, path]);
 
   async function handleSubmit(event: React.FormEvent<HTMLFormElement>) {
     event.preventDefault();
     const formData = new FormData(event.currentTarget);
     socketService.emitPendingNewTask();
-    startTransition(async () => {
-      const result = await updateTaskKey(formData);
-      if ("error" in result) {
-        setError(result.error);
-      } else {
-        socketService.emitFetchedNewTask(result);
-        setKeyValue(result.key);
-        setTaskData(result);
-        setError(null);
-      }
-    });
+    handleTaskUpdate(formData);
   }
 
   if (isPending) {
@@ -72,7 +81,7 @@ const JiraTask = () => {
   if (!taskData) {
     return (
       <>
-        <JiraForm handleSubmit={handleSubmit} />;
+        <JiraForm handleSubmit={handleSubmit} roomId={path} />;
         {error && <div className="text-red-600 text-center p-4">{error}</div>}
       </>
     );
@@ -88,7 +97,7 @@ const JiraTask = () => {
 
   return (
     <div className="bg-white rounded-lg shadow flex flex-col gap-4 py-4  h-full max-w-3xl">
-      <JiraForm handleSubmit={handleSubmit} jiraKey={key} />
+      <JiraForm handleSubmit={handleSubmit} jiraKey={key} roomId={path} />
       {error && <div className="text-red-600 text-center p-4">{error}</div>}
 
       <div className="flex flex-col gap-2 px-6 overflow-auto">
