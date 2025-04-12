@@ -4,9 +4,10 @@ import JiraTaskLink from "./jira-task-link";
 type Props = {
   handleSubmit: (event: React.FormEvent<HTMLFormElement>) => void;
   jiraKey?: string;
+  roomId?: string;
 };
 
-const JiraForm = ({ handleSubmit, jiraKey }: Props) => {
+const JiraForm = ({ handleSubmit, jiraKey, roomId }: Props) => {
   const handleClear = () => {
     const form = document.getElementById("jira-form") as HTMLFormElement;
     form.reset();
@@ -20,7 +21,16 @@ const JiraForm = ({ handleSubmit, jiraKey }: Props) => {
     >
       {jiraKey && <JiraTaskLink jiraKey={jiraKey} />}
       <div className="flex gap-2 items-center ">
+        {roomId && (
+          <input
+            type="hidden"
+            name="roomId"
+            id="roomId"
+            defaultValue={roomId} // Pass the roomId value here
+          />
+        )}
         <input
+          required
           placeholder="Enter Jira Key"
           type="text"
           name="key"
