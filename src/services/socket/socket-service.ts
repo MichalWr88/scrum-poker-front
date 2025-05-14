@@ -1,36 +1,8 @@
 import { Task } from "@/src/components/jira/models/jira-task";
 import { User } from "next-auth";
 import { io, Socket } from "socket.io-client";
+import { RoomConfig, SocketEventPayloads, SocketEvents } from "./models";
 
-export enum SocketEvents {
-  // Connection events
-  CONNECT = "connection",
-  DISCONNECT = "disconnect",
-
-  // Room events
-  JOIN_ROOM = "join_room",
-  LEAVE_ROOM = "leave_room",
-  ROOM_USERS_UPDATED = "room_users_updated",
-
-  // Voting events
-  SEND_VOTE = "send_vote",
-  VOTES_UPDATED = "votes_updated",
-  CLEAR_ALL_VOTES = "clear_all_votes",
-  CLEAR_MY_VOTE = "clear_my_vote",
-  VOTES_CLEARED = "votes_cleared",
-  TOGGLE_VOTES = "toggle_votes",
-
-  //TASK EVENTS
-  IS_PENDING_NEW_TASK = "is_pending_new_task",
-  FETCHED_NEW_TASK = "fetched_new_task",
-  PENDING_NEW_TASK = "pending_new_task",
-}
-
-export interface Vote {
-  userId: string;
-  user: PartialUser;
-  value: string | number | null;
-}
 type PartialUser = Required<Pick<User, "name" | "email" | "dbId" | "role">>;
 
 export class SocketService {
@@ -107,17 +79,22 @@ export class SocketService {
       );
       return;
     }
-
-    this.socket.emit(SocketEvents.PENDING_NEW_TASK, { roomId: this.roomId });
+    this.emitHandler(SocketEvents.PENDING_NEW_TASK, {
+      roomId: this.roomId,
+    });
   }
-  public onIsPendingNewTask(callback: (task: Task) => void): void {
+  public onIsPendingNewTask(
+    callback: (
+      task: SocketEventPayloads[SocketEvents.IS_PENDING_NEW_TASK]
+    ) => void
+  ): void {
     if (!this.socket || !this.roomId) {
       console.error(
         "Cannot emit pending new task: Socket not initialized or missing roomId"
       );
       return;
     }
-    this.socket.on(SocketEvents.IS_PENDING_NEW_TASK, callback);
+    this.onHandler(SocketEvents.IS_PENDING_NEW_TASK, callback);
   }
   /**
    * Emit an event indicating a new task has been fetched
@@ -129,8 +106,7 @@ export class SocketService {
       );
       return;
     }
-
-    this.socket.emit(SocketEvents.FETCHED_NEW_TASK, {
+    this.emitHandler(SocketEvents.FETCHED_NEW_TASK, {
       roomId: this.roomId,
       task,
     });
@@ -154,8 +130,7 @@ export class SocketService {
       );
       return;
     }
-
-    this.socket.emit(SocketEvents.JOIN_ROOM, {
+    this.emitHandler(SocketEvents.JOIN_ROOM, {
       roomId: this.roomId,
       user: this.user,
     });
@@ -171,8 +146,9 @@ export class SocketService {
       );
       return;
     }
-
-    this.socket.emit(SocketEvents.LEAVE_ROOM, { roomId: this.roomId });
+    this.emitHandler(SocketEvents.LEAVE_ROOM, {
+      roomId: this.roomId,
+    });
   }
 
   /**
@@ -185,8 +161,7 @@ export class SocketService {
       );
       return;
     }
-
-    this.socket.emit(SocketEvents.SEND_VOTE, {
+    this.emitHandler(SocketEvents.SEND_VOTE, {
       roomId: this.roomId,
       vote,
     });
@@ -194,15 +169,17 @@ export class SocketService {
   /**
    * Toggle votes visibility in the room
    */
-  public toggleVotes(): void {
+  public toggleVotes(show: boolean): void {
     if (!this.socket || !this.roomId) {
       console.error(
         "Cannot toggle votes: Socket not initialized or missing roomId"
       );
       return;
     }
-
-    this.socket.emit(SocketEvents.TOGGLE_VOTES, { roomId: this.roomId });
+    this.emitHandler(SocketEvents.TOGGLE_VOTES, {
+      roomId: this.roomId,
+      show,
+    });
   }
   /**
    * Clear all votes in the room
@@ -214,8 +191,9 @@ export class SocketService {
       );
       return;
     }
-
-    this.socket.emit(SocketEvents.CLEAR_ALL_VOTES, { roomId: this.roomId });
+    this.emitHandler(SocketEvents.CLEAR_ALL_VOTES, {
+      roomId: this.roomId,
+    });
   }
 
   /**
@@ -228,14 +206,17 @@ export class SocketService {
       );
       return;
     }
-
-    this.socket.emit(SocketEvents.CLEAR_MY_VOTE, { roomId: this.roomId });
+    this.emitHandler(SocketEvents.CLEAR_MY_VOTE, {
+      roomId: this.roomId,
+    });
   }
 
   /**
    * Listen for room users updated events
    */
-  public onRoomUsersUpdated(callback: (users: Vote[]) => void): void {
+  public onRoomUsersUpdated(
+    callback: (users: RoomConfig["votes"]) => void
+  ): void {
     if (!this.socket) {
       console.error("Cannot add listener: Socket not initialized");
       return;
@@ -247,7 +228,7 @@ export class SocketService {
   /**
    * Listen for votes updated events
    */
-  public onVotesUpdated(callback: (users: Vote[]) => void): void {
+  public onVotesUpdated(callback: (users: RoomConfig["votes"]) => void): void {
     if (!this.socket) {
       console.error("Cannot add listener: Socket not initialized");
       return;
@@ -284,6 +265,26 @@ export class SocketService {
   public removeAllListeners(): void {
     if (!this.socket) return;
     this.socket.removeAllListeners();
+  }
+  private emitHandler<T extends SocketEvents>(
+    event: T,
+    payload: SocketEventPayloads[T]
+  ): void {
+    if (!this.socket) {
+      console.error("Socket not initialized");
+      return;
+    }
+    this.socket.emit(event, payload);
+  }
+  private onHandler<T extends SocketEvents>(
+    event: T,
+    callback: (payload: SocketEventPayloads[T]) => void
+  ): void {
+    if (!this.socket) {
+      console.error("Socket not initialized");
+      return;
+    }
+    this.socket.on(event as never, callback as (...args: unknown[]) => void);
   }
 }
 

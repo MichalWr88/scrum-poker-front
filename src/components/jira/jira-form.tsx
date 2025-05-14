@@ -5,13 +5,19 @@ type Props = {
   handleSubmit: (event: React.FormEvent<HTMLFormElement>) => void;
   jiraKey?: string;
   roomId?: string;
+  handleClear: () => void;
 };
 
-const JiraForm = ({ handleSubmit, jiraKey, roomId }: Props) => {
-  const handleClear = () => {
-    const form = document.getElementById("jira-form") as HTMLFormElement;
-    form.reset();
-  };
+const JiraForm = ({ handleSubmit, handleClear, jiraKey, roomId }: Props) => {
+  // const handleClear = () => {
+  //   const form = document.getElementById("jira-form") as HTMLFormElement;
+  //   console.log("Clearing form", form);
+  //   const keyInput = form.querySelector<HTMLInputElement>("#key");
+  //   if (keyInput) {
+  //     keyInput.value = "";
+  //   }
+  //   form.reset();
+  // };
 
   return (
     <form

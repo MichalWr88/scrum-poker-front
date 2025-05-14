@@ -23,7 +23,7 @@ const RoomWrapper = async ({
       <div className="flex gap-4 p-4 justify-center items-center wrapper-footer-navbar">
         <RoomPathGuard rooms={rooms}>
           <>
-            <div className="flex flex-col gap-6 flex-grow ">
+            <div className="flex flex-col gap-6 flex-grow h-full">
               {/* Voting controls and action buttons */}
               <div className="flex justify-between items-center">
                 {actionComponent}

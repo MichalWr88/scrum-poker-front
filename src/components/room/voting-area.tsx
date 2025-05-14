@@ -1,10 +1,11 @@
 "use client";
 
-import { socketService, Vote } from "@/src/services/socket/socket-service";
+import { socketService } from "@/src/services/socket/socket-service";
 import StatisticsWrapper from "./statistics/statistics-wrapper";
 import { useEffect, useState } from "react";
 import { useParams } from "next/navigation";
 import { useSession } from "next-auth/react";
+import { Vote } from "@/src/services/socket/models";
 
 const fibonacciVotes = [
   "0",
@@ -42,16 +43,18 @@ const VotingArea = () => {
 
     // Set up listeners
     socketService.onRoomUsersUpdated((updatedParticipants) => {
-      setParticipants(updatedParticipants);
+      const votes = Object.values(updatedParticipants);
+      setParticipants(votes);
     });
 
     socketService.onVotesUpdated((updatedParticipants) => {
-      setParticipants(updatedParticipants);
+      const votes = Object.values(updatedParticipants);
+      setParticipants(votes);
 
       // Update current user's vote if changed from server
       const socket = socketService.getSocket();
       if (socket) {
-        const myVote = updatedParticipants.find((p) => p.userId === socket.id);
+        const myVote = votes.find((p) => p.userId === socket.id);
         if (myVote) {
           setCurrentVote(myVote.value);
         }
@@ -100,13 +103,21 @@ const VotingArea = () => {
             <button
               key={value}
               onClick={() => handleVote(value)}
-              className={`w-[60] py-2 text-center rounded-md font-bold transition-colors  ${
+              className={`w-16 h-24 flex flex-col items-center justify-between rounded-lg font-bold text-lg shadow-md transition-transform transform relative ${
                 currentVote === value
-                  ? "bg-orange-500 text-white"
-                  : "bg-white text-blue-900 border border-sky-200 hover:bg-sky-200 cursor-pointer"
+                  ? "bg-orange-500 text-white scale-105"
+                  : "bg-white text-blue-900 border border-sky-200 hover:bg-sky-200 hover:scale-105 cursor-pointer"
               }`}
             >
-              {value}
+              <span className="absolute top-1 left-1 text-xs font-semibold text-gray-500">
+                {value}
+              </span>
+              <span className="flex-grow flex items-center justify-center text-2xl font-extrabold">
+                {value}
+              </span>
+              <span className="absolute bottom-1 right-1 text-xs font-semibold text-gray-500">
+                {value}
+              </span>
             </button>
           ))}
         </div>
@@ -129,7 +140,9 @@ const VotingArea = () => {
                 >
                   <p className="text-blue-900 flex gap-2">
                     <span>{participant.user.name} </span>
-                    <span className="italic text-blue-950 uppercase">{participant.user.role.split("")[0]} </span>
+                    <span className="italic text-blue-950 uppercase">
+                      {participant.user.role.split("")[0]}{" "}
+                    </span>
                     {isCurrentUser(participant.userId) ? "(You)" : ""}
                   </p>
                   <span className="font-mono font-bold text-cyan-600">

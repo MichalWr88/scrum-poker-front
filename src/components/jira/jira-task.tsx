@@ -70,6 +70,13 @@ const JiraTask = ({ taskId }: { taskId?: string }) => {
     handleTaskUpdate(formData);
   }
 
+  const handleClear = () => {
+    setKeyValue("");
+    setTaskData(undefined);
+    socketService.emitFetchedNewTask({} as Task);
+    setError(null);
+  };
+
   if (isPending) {
     return (
       <div className="font-bold text-4xl text-sky-700 w-90 h-full flex justify-center items-center">
@@ -81,8 +88,12 @@ const JiraTask = ({ taskId }: { taskId?: string }) => {
   if (!taskData) {
     return (
       <>
-        <JiraForm handleSubmit={handleSubmit} roomId={path} />;
-        {error && <div className="text-red-600 text-center p-4">{error}</div>}
+        <JiraForm
+          handleSubmit={handleSubmit}
+          roomId={path}
+          handleClear={handleClear}
+        />
+        ;{error && <div className="text-red-600 text-center p-4">{error}</div>}
       </>
     );
   }
@@ -97,7 +108,12 @@ const JiraTask = ({ taskId }: { taskId?: string }) => {
 
   return (
     <div className="bg-white rounded-lg shadow flex flex-col gap-4 py-4  h-full max-w-3xl">
-      <JiraForm handleSubmit={handleSubmit} jiraKey={key} roomId={path} />
+      <JiraForm
+        handleSubmit={handleSubmit}
+        jiraKey={key}
+        roomId={path}
+        handleClear={handleClear}
+      />
       {error && <div className="text-red-600 text-center p-4">{error}</div>}
 
       <div className="flex flex-col gap-2 px-6 overflow-auto">

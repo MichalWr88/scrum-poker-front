@@ -6,12 +6,12 @@ declare module "next-auth" {
   interface Session {
     user: {
       role?: string;
-      dbId?: unknown;
+      dbId?: string;
       createdAt?: Date;
     } & DefaultSession["user"];
   }
   interface User {
-    dbId: unknown;
+    dbId: string;
     role: string;
     createdAt: Date;
     id?: string;
@@ -53,7 +53,7 @@ export const { handlers, auth, signIn, signOut } = NextAuth(() => {
           } else {
             session.user.role = token.role as string;
           }
-          session.user.dbId = token.dbId;
+          session.user.dbId = token.dbId as string;
           session.user.createdAt = token.createdAt as Date;
         }
         return session;
@@ -73,7 +73,7 @@ export const { handlers, auth, signIn, signOut } = NextAuth(() => {
             if (dbUser) {
               // Enrich user object with db properties.
               user.role = dbUser.role;
-              user.dbId = dbUser._id;
+              user.dbId = dbUser._id.toString();
               user.createdAt = dbUser.createdAt;
             } else {
               const newUser = await UserModel.create({
@@ -82,7 +82,7 @@ export const { handlers, auth, signIn, signOut } = NextAuth(() => {
                 role: "developer",
               });
               user.role = newUser.role;
-              user.dbId = newUser._id;
+              user.dbId = newUser._id.toString();
               user.createdAt = newUser.createdAt;
             }
             console.log("33333", user);
