@@ -9,6 +9,7 @@ import { Vote } from "@/src/services/socket/models";
 
 const fibonacciVotes = [
   "0",
+  "0.5",
   "1",
   "2",
   "3",

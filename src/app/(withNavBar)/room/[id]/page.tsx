@@ -5,8 +5,13 @@ import VotingArea from "@/src/components/room/voting-area";
 import { SessionProvider } from "next-auth/react";
 import { initConnectMongo } from "@/src/services/mongodb/service";
 import scrumBackendService from "@/src/services/scrum-backend/scrum-backend.provider";
-import { PageProps } from "@/.next/types/app/page";
+
 import RoomNotFoundSection from "@/src/components/room/errors/not-found-section";
+
+type PageProps = {
+  params: { id: string };
+  searchParams?: { [key: string]: string | string[] | undefined };
+};
 
 export default async function RoomPage(props: PageProps) {
   try {
