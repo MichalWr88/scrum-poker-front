@@ -13,7 +13,7 @@ const ActionButtons = () => {
   };
   const toggleVotes = () => {
     setRevealed(!revealed);
-    socketService.toggleVotes();
+    socketService.toggleVotes(revealed);
   };
   return (
     <div className="space-x-3">
